@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client_custom> 
+  <cuStatus>0</cuStatus>  
+  <newIpCount>0</newIpCount>  
+  <tbUser Id="123" phone="我的电话号码"> 
+    <userName>Avalon</userName>  
+    <password>66666666305</password>  
+    <remark>JAXB测试</remark> 
+  </tbUser>  
+  <TbClientNameTest auth="1"> 
+    <city>青岛市</city>  
+    <clientId>305865088</clientId>  
+    <cuStatus>0</cuStatus>  
+    <newIpCount>0</newIpCount>  
+    <organizationName>青岛科技大学</organizationName> 
+  </TbClientNameTest> 
+</client_custom>

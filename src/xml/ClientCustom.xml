@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client_custom> 
+  <cuStatus>0</cuStatus>  
+  <newIpCount>0</newIpCount>  
+  <tbUser> 
+    <id>123</id>  
+    <name>Avalon</name>  
+    <password>66666666305</password>  
+    <remark>JAXB测试</remark> 
+  </tbUser>  
+  <tbclient> 
+    <authStatus>1</authStatus>  
+    <city>青岛市</city>  
+    <clientId>305865088</clientId>  
+    <cuStatus>0</cuStatus>  
+    <newIpCount>0</newIpCount>  
+    <organizationName>青岛科技大学</organizationName> 
+  </tbclient> 
+</client_custom>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bdl888.cloud.mapper.ClientMapper" >
+   <resultMap id="BaseResultMap" type="cn.bdl888.cloud.entity.generator.TbClient">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="client_id" jdbcType="VARCHAR" property="clientId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="auth_status" jdbcType="BIT" property="authStatus" />
+    <result column="organization_name" jdbcType="VARCHAR" property="organizationName" />
+    <result column="organization_sort" jdbcType="VARCHAR" property="organizationSort" />
+    <result column="organization_phone" jdbcType="VARCHAR" property="organizationPhone" />
+    <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    <result column="offline_time" jdbcType="DATE" property="offlineTime" />
+    <result column="use_times" jdbcType="INTEGER" property="useTimes" />
+    <result column="online_status" jdbcType="INTEGER" property="onlineStatus" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="old_ip" jdbcType="VARCHAR" property="oldIp" />
+    <result column="new_ip_count" jdbcType="INTEGER" property="newIpCount" />
+    <result column="remark" jdbcType="LONGVARCHAR" property="remark"  />
+    <result column="cu_status" jdbcType="BIT" property="cuStatus" />
+    <result column="last_ack_time" jdbcType="TIMESTAMP" property="lastACKTime" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, client_id, username, password, cu_status, auth_status, offline_time, organization_name, 
+    organization_sort, organization_phone, register_time, use_times, online_status, ip, 
+    old_ip, new_ip_count, remark, last_ack_time, city
+  </sql>
+  
+<!-- 查询所有客户机信息byCQZ -->
+	<select id="listClients" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_client where auth_status != 2 
+   </select>
+<!-- 根据条件查询客户机数量-->
+   <select id="getClientCount" resultType="int" parameterType="cn.bdl888.cloud.entity.ClientCustom"> 
+   select count(id) from tb_client
+   <where>
+    	auth_status != 2 
+      <if test="username!= '' and username != null" >
+       AND username LIKE '%${username}%'
+      </if>
+      <if test="authStatus != null" >
+       AND auth_status = #{authStatus,jdbcType=BIT}
+      </if>
+      <if test="organizationName != '' and organizationName != null">
+       AND organization_name LIKE '%${organizationName}%'
+      </if>
+      <if test="organizationSort != '' and organizationSort != null">
+       AND organization_sort LIKE '%${organizationSort}%'
+      </if>
+      <if test="organizationPhone != '' and organizationPhone != null">
+       AND organization_phone LIKE '%${organizationPhone}%'
+      </if>
+      <if test="dateStart != null " >
+       AND   register_time &gt; #{dateStart}
+      </if>
+       <if test="dateEnd != null " >
+       AND   register_time &lt; #{dateEnd}
+      </if>
+      <if test="onlineStatus != null" >
+      	<if test="onlineStatus == 1" >
+       	AND last_ack_time &gt;= DATE_SUB(NOW(),INTERVAL 6 MINUTE)
+       	</if>
+       	<if test="onlineStatus == 0" >
+       	AND last_ack_time &lt; DATE_SUB(NOW(),INTERVAL 6 MINUTE)
+       	</if>
+      </if>
+      <if test="ip != '' and ip != null" >
+       AND ip LIKE '%${ip}%'
+      </if>
+      <if test="remark != '' and remark != null" >
+       AND remark LIKE '%${remark}%'
+      </if>
+    </where>
+   </select>
+<!-- 根据id更新设备锁定状态-锁定/解锁设备 byCQZ-->
+	<update id="updateAuthStatus" parameterType="cn.bdl888.cloud.entity.ClientCustom" >
+    update tb_client set  auth_status = #{authStatus,jdbcType=INTEGER}
+      where id = #{id,jdbcType=INTEGER}
+   </update>
+<!-- 根据id更新在线状态 byCQZ-->
+	<update id="updateOnlineStatus" parameterType="cn.bdl888.cloud.entity.generator.TbClient" >
+    update tb_client set  online_status = #{onlineStatus,jdbcType=INTEGER}
+      where id = #{id,jdbcType=INTEGER}
+   </update>   
+<!-- 查看详情——根据id查询单个客户机所有信息byCQZ -->
+	<select id="getClientById" parameterType="cn.bdl888.cloud.entity.generator.TbClient" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_client 
+    where id = #{id,jdbcType=INTEGER}
+   </select>
+<!-- 删除客户机（根据id更新authStatus字段为2）byCQZ -->
+	<update id="deleteClient" parameterType="cn.bdl888.cloud.entity.ClientCustom" >
+    update tb_client set  auth_status = #{authStatus,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+   </update>
+<!-- 完全离线（更新authStatus字段为3）byCQZ -->
+	<update id="deleteClientCompletely" parameterType="cn.bdl888.cloud.entity.ClientCustom" >
+    update tb_client set  auth_status = #{authStatus,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+   </update>
+   <!--根据各种条件组合查询客户机byCQZ  -->
+   <select id="listClientsByPrimaryKeySelective" resultMap="BaseResultMap" parameterType="cn.bdl888.cloud.entity.ClientCustom" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_client 
+    <if test="idStart != null and pageSize != null">
+    <where>
+    	auth_status != 2 
+      <if test="username!= '' and username != null" >
+       AND username LIKE '%${username}%'
+      </if>
+      <if test="authStatus != null ">
+       AND auth_status = #{authStatus,jdbcType=BIT}
+      </if>
+      <if test="organizationName != '' and organizationName != null">
+       AND organization_name LIKE '%${organizationName}%'
+      </if>
+      <if test="organizationSort != '' and organizationSort != null">
+       AND organization_sort LIKE '%${organizationSort}%'
+      </if>
+      <if test="organizationPhone != '' and organizationPhone != null">
+       AND organization_phone LIKE '%${organizationPhone}%'
+      </if>
+      <if test="dateStart != null " >
+       AND   register_time &gt; #{dateStart}
+      </if>
+      <if test="dateEnd != null " >
+       AND   register_time &lt; #{dateEnd}
+      </if>
+      <if test="onlineStatus != null" >
+      	<if test="onlineStatus == 1" >
+       	AND last_ack_time &gt;= DATE_SUB(NOW(),INTERVAL 6 MINUTE)
+       	</if>
+       	<if test="onlineStatus == 0" >
+       	AND last_ack_time &lt; DATE_SUB(NOW(),INTERVAL 6 MINUTE)
+       	</if>
+      </if>
+      <if test="ip != '' and ip != null" >
+       AND ip LIKE '%${ip}%'
+      </if>
+      <if test="remark != '' and remark != null" >
+       AND remark LIKE '%${remark}%'
+      </if>
+    </where>
+    ORDER BY
+    cu_status DESC,
+    auth_status DESC,
+	new_ip_count DESC
+	
+	
+	
+    limit #{idStart} , #{pageSize}
+    </if>
+   </select>
+	<!-- 添加客户机 -->
+	<insert id="addClient" parameterType="cn.bdl888.cloud.entity.ClientCustom" >
+	    insert into tb_client (id, client_id, username, 
+	      password,auth_status,cu_status,organization_name, 
+	      organization_sort, organization_phone, register_time,last_ack_time, 
+	      use_times, online_status, ip, 
+	      remark,offline_time,city)
+	    values (#{id,jdbcType=INTEGER}, #{clientId,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, 
+	      #{password,jdbcType=VARCHAR}, #{authStatus,jdbcType=BIT},#{cuStatus,jdbcType=BIT}, #{organizationName,jdbcType=VARCHAR}, 
+	      #{organizationSort,jdbcType=VARCHAR}, #{organizationPhone,jdbcType=VARCHAR}, #{registerTime,jdbcType=TIMESTAMP}, #{lastACKTime,jdbcType=TIMESTAMP},
+	      #{useTimes,jdbcType=INTEGER}, #{onlineStatus,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, 
+	      #{remark,jdbcType=LONGVARCHAR},#{offlineTime,jdbcType=DATE},#{city})
+	</insert>
+	
+	<!-- 查询客户机所在的城市 -->
+	<select id="getArea" resultType="String">
+		select city from tb_client
+	</select>
+	
+	<!-- 对客户机激活数按天查询进行统计  -->
+	<select id="getTimes" resultType="java.util.Map">
+		SELECT DATE_FORMAT(register_time, "%Y-%m-%d" ) date,COUNT(*) count
+		FROM tb_client
+		WHERE register_time &gt; #{startTime} and register_time &lt; #{stopTime}
+		GROUP BY DATE_FORMAT(register_time, "%Y-%m-%d" )
+	</select>
+	
+	<select id="readytoGetTimes" resultType="java.util.Map">
+		SELECT DATE_FORMAT(register_time, "%Y-%m-%d" ) date,COUNT(*) count
+		FROM tb_client
+		GROUP BY DATE_FORMAT(register_time, "%Y-%m-%d" )
+	</select>
+	
+	<!-- 查询地区产品在线的数量和总的数量  -->
+	<select id="getOnline" resultType="cn.bdl888.cloud.entity.ProductOnline">
+		select city,last_ack_time &lt; DATE_SUB(NOW(),INTERVAL 5 MINUTE) online,COUNT(*) count
+		from tb_client
+		group by city
+	</select>
+	
+	<!-- 对不同设备的使用次数进行分类统计查询 -->
+	<select id="getUseTimes" resultType="java.util.Map">
+		SELECT username,use_times
+		from tb_client
+		order by use_times desc
+	</select>
+	
+	
+</mapper>
